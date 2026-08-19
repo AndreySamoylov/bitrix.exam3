@@ -1,0 +1,7 @@
+*
+!local
+!local/**
+local/activities/
+local/components/
+local/.idea
+!README.md
