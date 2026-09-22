@@ -10,7 +10,10 @@ use Bitrix\Main\EventManager;
 use Bitrix\Main\UrlRewriter;
 use Bitrix\Main\SystemException;
 
-use Exam31\Ticket\SomeElementTable;
+use Bitrix\Main\Type\DateTime;
+
+use Exam31\Ticket\AndreyElementTable;
+use Exam31\Ticket\AndreyInfoTable;
 
 Loc::loadMessages(__FILE__);
 
@@ -122,12 +125,40 @@ class exam31_ticket extends CModule
 		}
 
 		$dbConnection = Application::getConnection();
-		$entity = SomeElementTable::getEntity();
-		$tableName = SomeElementTable::getTableName();
-		if (!$dbConnection->isTableExists($tableName))
+
+		$andreyElementEntity = AndreyElementTable::getEntity();
+		$andreyElementTableName = AndreyElementTable::getTableName();
+		if (!$dbConnection->isTableExists($andreyElementTableName))
 		{
-			$entity->createDbTable();
+            $andreyElementEntity->createDbTable();
 		}
+
+        for ($i = 1; $i <= 100; $i++) {
+            AndreyElementTable::add(
+                [
+                    'ACTIVE' => 'Y',
+                    'TITLE' => 'Название ' . $i,
+                    'TEXT' =>  'Описание ' . $i,
+                    'DATE_MODIFY' => new DateTime(),
+                ]
+            );
+        }
+
+        $andreyInfoEntity = AndreyInfoTable::getEntity();
+        $andreyInfoTableName = AndreyInfoTable::getTableName();
+        if (!$dbConnection->isTableExists($andreyInfoTableName))
+        {
+            $andreyInfoEntity->createDbTable();
+        }
+
+        for ($i = 1; $i <= 100; $i++) {
+            AndreyInfoTable::add(
+                [
+                    'TITLE' => 'Инфо ' . $i,
+                    'ELEMENT_ID' => rand(0, 5),
+                ]
+            );
+        }
 
 		return true;
 	}
@@ -141,11 +172,17 @@ class exam31_ticket extends CModule
 		}
 
 		$dbConnection = Application::getConnection();
-		$tableName = SomeElementTable::getTableName();
-		if ($dbConnection->isTableExists($tableName))
+		$andreyElementTableName = AndreyElementTable::getTableName();
+		if ($dbConnection->isTableExists($andreyElementTableName))
 		{
-			$dbConnection->dropTable($tableName);
+			$dbConnection->dropTable($andreyElementTableName);
 		}
+
+        $andreyInfoTableName = AndreyInfoTable::getTableName();
+        if ($dbConnection->isTableExists($andreyInfoTableName))
+        {
+            $dbConnection->dropTable($andreyInfoTableName);
+        }
 
 		return true;
 	}
