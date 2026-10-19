@@ -8,13 +8,12 @@ use Bitrix\Main\Localization\Loc;
  */
 ?>
 
-<?
+<?php
 $APPLICATION->IncludeComponent(
 	'bitrix:ui.form',
 	'.default',
 	$arResult['form']
 );
 ?>
-
 <p class="ui-slider-paragraph"><a
 		href="<?= $arResult['LIST_PAGE_URL'] ?>"><?= Loc::getMessage('EXAM31_ELEMENT_DETAIL_BACK_TO_LIST') ?></a></p>

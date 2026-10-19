@@ -14,6 +14,7 @@ use Bitrix\Main\Type\DateTime;
 
 use Exam31\Ticket\AndreyElementTable;
 use Exam31\Ticket\AndreyInfoTable;
+use Exam31\Ticket\SidePanel\RuleInjector;
 
 Loc::loadMessages(__FILE__);
 
@@ -151,11 +152,11 @@ class exam31_ticket extends CModule
             $andreyInfoEntity->createDbTable();
         }
 
-        for ($i = 1; $i <= 100; $i++) {
+        for ($i = 1; $i <= 20; $i++) {
             AndreyInfoTable::add(
                 [
                     'TITLE' => 'Инфо ' . $i,
-                    'ELEMENT_ID' => rand(0, 5),
+                    'ELEMENT_ID' => rand(1, 5),
                 ]
             );
         }
@@ -198,6 +199,14 @@ class exam31_ticket extends CModule
 			'Exam31\\Ticket\\ExamFieldType',
 			'getUserTypeDescription'
 		);
+
+        $eventManager->registerEventHandler(
+            'main',
+            'OnEpilog',
+            $this->MODULE_ID,
+            RuleInjector::class,
+            'injectAnchorRules'
+        );
 	}
 
 	public function UnInstallEvents(): void
@@ -211,6 +220,14 @@ class exam31_ticket extends CModule
 			'Exam31\\Ticket\\ExamFieldType',
 			'getUserTypeDescription'
 		);
+
+        $eventManager->unRegisterEventHandler(
+            'main',
+            'OnEpilog',
+            $this->MODULE_ID,
+            RuleInjector::class,
+            'injectAnchorRules'
+        );
 	}
 
 	public function InstallFiles(): void

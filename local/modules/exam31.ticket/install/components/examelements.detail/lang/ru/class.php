@@ -4,3 +4,4 @@ $MESS['EXAM31_ELEMENT_DETAIL_ADD_ERROR'] = 'Ошибка при добавлен
 $MESS['EXAM31_ELEMENT_DETAIL_UPDATE_ERROR'] = 'Ошибка при обновлении';
 $MESS['EXAM31_ELEMENT_DETAIL_TITLE'] = 'Элемент #ID#';
 $MESS['EXAM31_ELEMENT_DETAIL_TITLE_NEW'] = 'Добавление элемента';
+$MESS['EXAM31_ELEMENT_DETAIL_TITLE_INFO'] = 'Элемент #ID#. Информация';

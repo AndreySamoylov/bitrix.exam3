@@ -1,8 +1,8 @@
 <?php
 use Bitrix\Main\SystemException;
-use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\Engine\Contract\Controllerable;
 use Bitrix\Main\Engine\Response\AjaxJson;
 use Bitrix\Main\Error;
@@ -10,13 +10,15 @@ use Bitrix\Main\Errorable;
 use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\ErrorableImplementation;
 
-use Exam31\Ticket\SomeElementTable;
+use Exam31\Ticket\AndreyElementTable;
+use Exam31\Ticket\AndreyInfoTable;
+
 
 class ExamElementsDetailComponent extends CBitrixComponent implements Controllerable, Errorable
 {
 	use ErrorableImplementation;
 	private ?int $elementId = null;
-	
+
 	public function __construct($component = null)
 	{
 		parent::__construct($component);
@@ -57,19 +59,26 @@ class ExamElementsDetailComponent extends CBitrixComponent implements Controller
 			return;
 		}
 
-		//flat
-		$this->arResult['ELEMENT'] = $this->getEntityData();
+        //flat
+        $this->arResult['ELEMENT'] = $this->getEntityData();
+        if (!empty($this->arParams['IS_INFO']) && $this->arParams['IS_INFO'] === 'Y') {
+            $this->arResult['ELEMENTS'] = $this->getInfo($this->arResult['ELEMENT']);
 
-		//form
-		$this->arResult['form'] = $this->PrepareForm($this->arResult['ELEMENT']);
-		$this->arResult['LIST_PAGE_URL'] = $this->arParams['LIST_PAGE_URL'];
-		$this->arResult['DETAIL_PAGE_URL'] = $this->arParams['DETAIL_PAGE_URL'];
+            global $APPLICATION;
+            $APPLICATION->SetTitle(Loc::getMessage('EXAM31_ELEMENT_DETAIL_TITLE_INFO', ['#ID#' => $this->arResult['ELEMENT']['ID']]));
+        } else {
+            //form
+            $this->arResult['form'] = $this->PrepareForm($this->arResult['ELEMENT']);
 
-		$this->includeComponentTemplate();
+            global $APPLICATION;
+            $APPLICATION->SetTitle(Loc::getMessage('EXAM31_ELEMENT_DETAIL_TITLE', ['#ID#' => $this->arResult['ELEMENT']['ID']]));
+        }
 
-		global $APPLICATION;
-		$APPLICATION->SetTitle(Loc::getMessage('EXAM31_ELEMENT_DETAIL_TITLE', ['#ID#' => $this->arResult['ELEMENT']['ID']]));
-	}
+        $this->arResult['LIST_PAGE_URL'] = $this->arParams['LIST_PAGE_URL'];
+        $this->arResult['DETAIL_PAGE_URL'] = $this->arParams['DETAIL_PAGE_URL'];
+
+        $this->includeComponentTemplate();
+    }
 
 	protected function PrepareForm($element): array
 	{
@@ -111,7 +120,7 @@ class ExamElementsDetailComponent extends CBitrixComponent implements Controller
 						'type' => 'section',
 						'elements' => [
 							['name' => 'ID'],
-							['name' => 'DATE_MODIFY'],							
+							['name' => 'DATE_MODIFY'],
 							['name' => 'ACTIVE'],
 							['name' => 'TITLE'],
 							['name' => 'TEXT'],
@@ -124,7 +133,7 @@ class ExamElementsDetailComponent extends CBitrixComponent implements Controller
 
 	protected function getEntityFields(): array
 	{
-		$fieldsLabel = SomeElementTable::getFieldsDisplayLabel();
+		$fieldsLabel = AndreyElementTable::getFieldsDisplayLabel();
 
 		//Демо-данные - поля формы
 		return [
@@ -139,7 +148,7 @@ class ExamElementsDetailComponent extends CBitrixComponent implements Controller
 				'title' => $fieldsLabel['DATE_MODIFY'] ?? 'DATE_MODIFY',
 				'editable' => false,
 				'type' => 'datetime',
-			],			
+			],
 			[
 				'name' => 'ACTIVE',
 				'title' => $fieldsLabel['ACTIVE'] ?? 'ACTIVE',
@@ -161,46 +170,67 @@ class ExamElementsDetailComponent extends CBitrixComponent implements Controller
 		];
 	}
 
+    /**
+     * @return array
+     * @throws SystemException
+     * @throws \Bitrix\Main\ArgumentException
+     * @throws \Bitrix\Main\ObjectPropertyException
+     */
 	protected function getEntityData(): array
 	{
-		if (!$this->elementId)
-		{
-			return [];
-		}
-
-		//Демо-данные полей для формы
-		$element = [
-			'ID' => 2,
-			'DATE_MODIFY' => (new DateTime())->toString(),
-			'TITLE' => 'TITLE 2',
-			'TEXT' => 'TEXT 2',
-			'ACTIVE' => 'Y'
-		];
-
-		return $element;
+		return $this->elementId ? AndreyElementTable::getRowById($this->elementId) : [];
 	}
+
+    protected function getInfo($element): array
+    {
+        return AndreyInfoTable::query()
+            ->addSelect('*')
+            ->where('ELEMENT_ID', '=', $element['ID'])
+            ->fetchAll();
+    }
 
 	//Ajax
 	public function saveAction(array $data): AjaxJson
 	{
-		//Заглушка для отработки ajax
-		$element = [];
-		$isUdpateSuccess = true;
+        $element['ID'] = (int) $this->arParams['ELEMENT_ID'];
+        $result = false;
 		try
 		{
-			if ($isUdpateSuccess)
-			{
-				$element['ID'] = '1';
-			}
-			else
-			{
-				throw new SystemException(Loc::getMessage('EXAM31_ELEMENT_DETAIL_UPDATE_ERROR'));
-			}
+            if ($element['ID'] > 0)
+            {
+                $updateResult = AndreyElementTable::update(
+                    $element['ID'],
+                    [
+                        'DATE_MODIFY' => new DateTime(),
+                        'ACTIVE' => $data['ACTIVE'],
+                        'TITLE' => $data['TITLE'],
+                        'TEXT' => $data['TEXT'],
+                    ]
+                );
+
+                if (!$updateResult->isSuccess()) {
+                    throw new \RuntimeException('Не удалось обновить элемент');
+                }
+            } else {
+                $addResult = AndreyElementTable::add(
+                    [
+                        'DATE_MODIFY' => new DateTime(),
+                        'ACTIVE' => $data['ACTIVE'],
+                        'TITLE' => $data['TITLE'],
+                        'TEXT' => $data['TEXT'],
+                    ]
+                );
+
+                if (!$addResult->isSuccess()) {
+                    throw new \RuntimeException('Не удалось добавить элемент');
+                }
+
+                $element['ID'] = $addResult->getId();
+            }
 
 			return AjaxJson::createSuccess([
 				'ENTITY_ID' => $element['ID'],
-				//REDIRECT_URL необходим для корректной работы формы в слайдере
-				//'REDIRECT_URL' => $this->getDetailPageUrl($element['ID']),
+				'REDIRECT_URL' => $this->getDetailPageUrl($element['ID']),
 			]);
 		}
 		catch (SystemException $exception)
