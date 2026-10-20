@@ -1,0 +1,4 @@
+<?php
+
+
+$MESS['INVESTMENT_PROJECT_HISTORY_NO_VALUE_PLACEHOLDER'] = 'Не задано';

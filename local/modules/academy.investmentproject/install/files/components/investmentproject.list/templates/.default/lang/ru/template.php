@@ -1,0 +1,9 @@
+<?php
+
+
+$MESS['INVESTMENT_PROJECT_LIST_PAGE_TITLE'] = 'Список инвестиционных проектов';
+
+$MESS['INVESTMENT_PROJECT_LIST_DELETE_CONFIRM_TITLE'] = 'Внимание';
+$MESS['INVESTMENT_PROJECT_LIST_DELETE_CONFIRM_MESSAGE'] = 'Вы действительно хотите удалить проект?';
+$MESS['INVESTMENT_PROJECT_LIST_DELETE_NOTIFY_MESSAGE'] = 'Проект "#PROJECT_TITLE#" успешно удален.';
+$MESS['INVESTMENT_PROJECT_LIST_DELETE_ERROR_TITLE'] = 'Ошибка';
