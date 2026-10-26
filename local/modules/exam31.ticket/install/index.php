@@ -25,6 +25,9 @@ class exam31_ticket extends CModule
 	protected string $fileRoot;
 	protected array $filesPath;
 
+    protected const ENTITY_ID = 'CRM_DEAL';
+    protected const FIELD_NAME = 'UF_CRM_PROTECTED_FIELD';
+
 	/**
 	 * @return string
 	 */
@@ -160,6 +163,32 @@ class exam31_ticket extends CModule
                 ]
             );
         }
+        $userTypeEntity    = new \CUserTypeEntity();
+        $userFieldId = $userTypeEntity->Add(
+            [
+                'USER_TYPE_ID' => 'string',
+                'MANDATORY' => 'N',
+                'MULTIPLE' => 'N',
+                'ENTITY_ID' => self::ENTITY_ID,
+                'FIELD_NAME' => self::FIELD_NAME,
+                'XML_ID' => self::FIELD_NAME,
+                'SHOW_FILTER' => 'E',
+                'SHOW_IN_LIST' => 'Y',
+                'LIST_FILTER_LABEL' => [
+                    'ru' => 'Защищённое поле',
+                    'en' => 'Protected field',
+                ],
+                'LIST_COLUMN_LABEL' => [
+                    'ru' => 'Защищённое поле',
+                    'en' => 'Protected field',
+                ],
+                'EDIT_FORM_LABEL' => [
+                    'ru' => 'Защищённое поле',
+                    'en' => 'Protected field',
+                ],
+                'HELP_MESSAGE   ' => [],
+            ]
+        );
 
 		return true;
 	}
@@ -184,6 +213,18 @@ class exam31_ticket extends CModule
         {
             $dbConnection->dropTable($andreyInfoTableName);
         }
+
+
+        $rsData = \CUserTypeEntity::GetList(
+            [],
+            [
+                'ENTITY_ID' => self::ENTITY_ID,
+                'FIELD_NAME' => self::FIELD_NAME,
+            ],
+        )->Fetch();
+
+        $userTypeEntity    = new \CUserTypeEntity();
+        $rsResult = $userTypeEntity->Delete($rsData['ID']);
 
 		return true;
 	}
@@ -215,6 +256,14 @@ class exam31_ticket extends CModule
             'Exam31\\Ticket\\UI\\LeftMenuExtender',
             'addLeftMenuItem'
         );
+        
+        $eventManager->registerEventHandler(
+            'crm',
+            'OnBeforeCrmDealUpdate',
+            $this->MODULE_ID,
+            'Exam31\\Ticket\\CRM\\DealHandler',
+            'OnBeforeCrmDealUpdateHandler'
+        );
 	}
 
 	public function UnInstallEvents(): void
@@ -243,6 +292,14 @@ class exam31_ticket extends CModule
             $this->MODULE_ID,
             'Exam31\\Ticket\\UI\\LeftMenuExtender',
             'addLeftMenuItem'
+        );
+
+        $eventManager->unRegisterEventHandler(
+            'crm',
+            'OnBeforeCrmDealUpdate',
+            $this->MODULE_ID,
+            'Exam31\\Ticket\\CRM\\DealHandler',
+            'OnBeforeCrmDealUpdateHandler'
         );
 	}
 
