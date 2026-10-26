@@ -207,6 +207,14 @@ class exam31_ticket extends CModule
             RuleInjector::class,
             'injectAnchorRules'
         );
+
+        $eventManager->registerEventHandler(
+            'main',
+            'OnEpilog',
+            $this->MODULE_ID,
+            'Exam31\\Ticket\\UI\\LeftMenuExtender',
+            'addLeftMenuItem'
+        );
 	}
 
 	public function UnInstallEvents(): void
@@ -227,6 +235,14 @@ class exam31_ticket extends CModule
             $this->MODULE_ID,
             RuleInjector::class,
             'injectAnchorRules'
+        );
+
+        $eventManager->unRegisterEventHandler(
+            'main',
+            'OnEpilog',
+            $this->MODULE_ID,
+            'Exam31\\Ticket\\UI\\LeftMenuExtender',
+            'addLeftMenuItem'
         );
 	}
 
