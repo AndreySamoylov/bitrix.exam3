@@ -26,6 +26,7 @@ class ExamFieldType extends BaseType
 	{
 		return [
 			'FORMAT' => $userField['SETTINGS']['FORMAT'] ?: Loc::getMessage('EXAM31_TICKET_FIELDTYPE_UF_DEFAULT_TEMPLATE_VALUE'),
+			'DETAIL_PAGE_FORMAT' => $userField['SETTINGS']['DETAIL_PAGE_FORMAT'] ?: Loc::getMessage('EXAM31_TICKET_FIELDTYPE_UF_DEFAULT_DETAIL_PAGE_FORMAT'),
 		];
 	}
 }

@@ -16,6 +16,8 @@ use Exam31\Ticket\AndreyElementTable;
 use Exam31\Ticket\AndreyInfoTable;
 use Exam31\Ticket\SidePanel\RuleInjector;
 
+use Exam31\Ticket\ExamFieldType;
+
 Loc::loadMessages(__FILE__);
 
 class exam31_ticket extends CModule
@@ -27,6 +29,7 @@ class exam31_ticket extends CModule
 
     protected const ENTITY_ID = 'CRM_DEAL';
     protected const FIELD_NAME = 'UF_CRM_PROTECTED_FIELD';
+    protected const FIELD_NAME_CUSTORM = 'UF_EXAM31_TRAINING';
 
 	/**
 	 * @return string
@@ -81,8 +84,8 @@ class exam31_ticket extends CModule
 			{
 				ModuleManager::registerModule($this->MODULE_ID);
 
-				$this->InstallDB();
-				$this->InstallEvents();
+                $this->InstallEvents();
+                $this->InstallDB();
 				$this->InstallFiles();
 				$this->InstallUrlRewriterRuls();
 			}
@@ -190,6 +193,32 @@ class exam31_ticket extends CModule
             ]
         );
 
+        $userFieldId = $userTypeEntity->Add(
+            [
+                'USER_TYPE_ID' => ExamFieldType::USER_TYPE_ID,
+                'MANDATORY' => 'N',
+                'MULTIPLE' => 'N',
+                'ENTITY_ID' => self::ENTITY_ID,
+                'FIELD_NAME' => self::FIELD_NAME_CUSTORM,
+                'XML_ID' => self::FIELD_NAME_CUSTORM,
+                'SHOW_FILTER' => 'N',
+                'SHOW_IN_LIST' => 'N',
+                'LIST_FILTER_LABEL' => [
+                    'ru' => self::FIELD_NAME_CUSTORM,
+                    'en' => self::FIELD_NAME_CUSTORM,
+                ],
+                'LIST_COLUMN_LABEL' => [
+                    'ru' => self::FIELD_NAME_CUSTORM,
+                    'en' => self::FIELD_NAME_CUSTORM,
+                ],
+                'EDIT_FORM_LABEL' => [
+                    'ru' => self::FIELD_NAME_CUSTORM,
+                    'en' => self::FIELD_NAME_CUSTORM,
+                ],
+                'HELP_MESSAGE   ' => [],
+            ]
+        );
+
 		return true;
 	}
 
@@ -226,6 +255,18 @@ class exam31_ticket extends CModule
         $userTypeEntity    = new \CUserTypeEntity();
         $rsResult = $userTypeEntity->Delete($rsData['ID']);
 
+
+        $rsDataCustom = \CUserTypeEntity::GetList(
+            [],
+            [
+                'ENTITY_ID' => self::ENTITY_ID,
+                'FIELD_NAME' => self::FIELD_NAME_CUSTORM,
+            ],
+        )->Fetch();
+
+        $userTypeEntity    = new \CUserTypeEntity();
+        $rsResult = $userTypeEntity->Delete($rsDataCustom['ID']);
+
 		return true;
 	}
 
@@ -238,7 +279,7 @@ class exam31_ticket extends CModule
 			'OnUserTypeBuildList',
 			$this->MODULE_ID,
 			'Exam31\\Ticket\\ExamFieldType',
-			'getUserTypeDescription'
+			'getDescription'
 		);
 
         $eventManager->registerEventHandler(
@@ -275,7 +316,7 @@ class exam31_ticket extends CModule
 			'OnUserTypeBuildList',
 			$this->MODULE_ID,
 			'Exam31\\Ticket\\ExamFieldType',
-			'getUserTypeDescription'
+			'getDescription'
 		);
 
         $eventManager->unRegisterEventHandler(
