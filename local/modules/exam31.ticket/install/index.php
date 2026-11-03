@@ -58,6 +58,7 @@ class exam31_ticket extends CModule
 
 		$this->filesPath = [
 			'PUBLIC' => '/exam31',
+			'PUBLIC_TRAIN' => '/exam31-train',
 			'COMPONENTS' => '/local/components/' . $this->MODULE_ID,
 			'ACTIVITIES' => '/local/activities/examticketactivity'
 		];
@@ -355,6 +356,14 @@ class exam31_ticket extends CModule
             'Exam31\\Ticket\\CRM\\DealHandler',
             'OnBeforeCrmDealUpdateHandler'
         );
+
+        $eventManager->registerEventHandler(
+            'main',
+            'OnEpilog',
+            $this->MODULE_ID,
+            'Exam31\\Ticket\\SidePanel\\Ex3120RuleInjector',
+            'injectAnchorsRules'
+        );
 	}
 
 	public function UnInstallEvents(): void
@@ -392,6 +401,14 @@ class exam31_ticket extends CModule
             'Exam31\\Ticket\\CRM\\DealHandler',
             'OnBeforeCrmDealUpdateHandler'
         );
+
+        $eventManager->unRegisterEventHandler(
+            'main',
+            'OnEpilog',
+            $this->MODULE_ID,
+            'Exam31\\Ticket\\SidePanel\\Ex3120RuleInjector',
+            'injectAnchorsRules'
+        );
 	}
 
 	public function InstallFiles(): void
@@ -414,6 +431,12 @@ class exam31_ticket extends CModule
 			true,
 			true
 		);
+        copyDirFiles(
+            $this->fileRoot . '/local/modules/' . $this->MODULE_ID . '/install/public/exam31-train',
+            $this->fileRoot . '/exam31-train',
+            true,
+            true
+        );
 	}
 
 	public function UnInstallFiles(): void
@@ -421,6 +444,7 @@ class exam31_ticket extends CModule
 		Directory::deleteDirectory($this->fileRoot . '/local/activities/examticketactivity');
 		Directory::deleteDirectory($this->fileRoot . '/local/components/' . $this->MODULE_ID);
 		Directory::deleteDirectory($this->fileRoot . '/exam31');
+		Directory::deleteDirectory($this->fileRoot . '/exam31-train');
 	}
 
 	public function InstallUrlRewriterRuls(): void
@@ -432,6 +456,13 @@ class exam31_ticket extends CModule
 				'PATH' => '/exam31/index.php',
 			]
 		);
+        UrlRewriter::add('s1',
+            [
+                'ID' => 'exam31.ticket:train.examelements',
+                'CONDITION' => '#^/exam31-train/#',
+                'PATH' => '/exam31-train/index.php',
+            ]
+        );
 	}
 
 	public function UnInstallUrlRewriterRuls(): void
@@ -443,6 +474,13 @@ class exam31_ticket extends CModule
 				'PATH' => '/exam31/index.php',
 			]
 		);
+        UrlRewriter::delete('s1',
+            [
+                'ID' => 'exam31.ticket:train.examelements',
+                'CONDITION' => '#^/exam31-train/#',
+                'PATH' => '/exam31-train/index.php',
+            ]
+        );
 	}
 }
 
