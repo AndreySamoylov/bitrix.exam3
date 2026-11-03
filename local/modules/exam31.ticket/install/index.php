@@ -18,6 +18,9 @@ use Exam31\Ticket\SidePanel\RuleInjector;
 
 use Exam31\Ticket\ExamFieldType;
 
+use Exam31\Ticket\Ex3120SomeElementTable;
+use Exam31\Ticket\Ex3120InfoTable;
+
 Loc::loadMessages(__FILE__);
 
 class exam31_ticket extends CModule
@@ -219,6 +222,41 @@ class exam31_ticket extends CModule
             ]
         );
 
+        $ex3120SomeElementEntity = Ex3120SomeElementTable::getEntity();
+        $ex3120SomeElementTableName = Ex3120SomeElementTable::getTableName();
+
+        if (!$dbConnection->isTableExists($ex3120SomeElementTableName))
+        {
+            $ex3120SomeElementEntity->createDbTable();
+        }
+
+        for ($i = 1; $i <= 100; $i++) {
+            $result = Ex3120SomeElementTable::add(
+                [
+                    'ACTIVE' => 'Y',
+                    'TITLE' => 'Название ' . $i,
+                    'TEXT' =>  'Описание ' . $i,
+                    'DATE_MODIFY' => new DateTime(),
+                ]
+            );
+        }
+
+        $ex3120InfoEntity = Ex3120InfoTable::getEntity();
+        $ex3120InfoTableName = Ex3120InfoTable::getTableName();
+        if (!$dbConnection->isTableExists($ex3120InfoTableName))
+        {
+            $ex3120InfoEntity->createDbTable();
+        }
+
+        for ($i = 1; $i <= 20; $i++) {
+            $result = Ex3120InfoTable::add(
+                [
+                    'TITLE' => 'Инфо ' . $i,
+                    'ELEMENT_ID' => rand(1, 5),
+                ]
+            );
+        }
+
 		return true;
 	}
 
@@ -266,6 +304,18 @@ class exam31_ticket extends CModule
 
         $userTypeEntity    = new \CUserTypeEntity();
         $rsResult = $userTypeEntity->Delete($rsDataCustom['ID']);
+
+        $ex3120ElementTableName = Ex3120SomeElementTable::getTableName();
+        if ($dbConnection->isTableExists($ex3120ElementTableName))
+        {
+            $dbConnection->dropTable($ex3120ElementTableName);
+        }
+
+        $ex3120InfoTableName = Ex3120InfoTable::getTableName();
+        if ($dbConnection->isTableExists($ex3120InfoTableName))
+        {
+            $dbConnection->dropTable($ex3120InfoTableName);
+        }
 
 		return true;
 	}
