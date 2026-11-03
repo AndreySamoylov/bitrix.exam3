@@ -7,6 +7,7 @@ use Bitrix\Bizproc\FieldType;
 use Bitrix\Main\ErrorCollection;
 use Bitrix\Bizproc\Activity\PropertiesDialog;
 use Bitrix\Main\Text\HtmlFilter;
+use Exam31\Ticket\AndreyElementTable;
 
 class CBPExamTicketActivity extends BaseActivity
 {
@@ -18,11 +19,17 @@ class CBPExamTicketActivity extends BaseActivity
 			'ID' => 0,
 
 			//return
-			'DEMO_VALUE' => null,
+			'DATE_MODIFY' => null,
+			'ACTIVE' => null,
+			'TITLE' => null,
+			'TEXT' => null,
 		];
 
 		$this->SetPropertiesTypes([
-			'DEMO_VALUE' => ['Type' => FieldType::STRING],
+			'DATE_MODIFY' => ['Type' => FieldType::DATETIME],
+			'ACTIVE' => ['Type' => FieldType::BOOL],
+			'TITLE' => ['Type' => FieldType::STRING],
+			'TEXT' => ['Type' => FieldType::TEXT],
 		]);
 
 	}
@@ -36,35 +43,47 @@ class CBPExamTicketActivity extends BaseActivity
 	{
 		$errors = parent::internalExecute();
 
-		/*
-		/Демо
-		*/
 		$elementId = (int) $this->preparedProperties["ID"];
-		if($elementId < 100)
+        $element = AndreyElementTable::query()
+            ->addSelect('*')
+            ->where('ID', '=', $elementId)
+            ->setLimit(1)
+            ->fetch();
+
+		if(empty($element))
 		{
-			//Значения найдены
-			$this->preparedProperties['DEMO_VALUE'] = HtmlFilter::encode('DEMO_VALUE');
+            //Если нет данных, отдаем пустые значения
+            $this->preparedProperties['ID'] = 0;
+            $this->preparedProperties['TITLE'] = '';
+
+            //Пишем в журнал выполнения БП что данные не нашли
+            $this->log(
+                Loc::getMessage(
+                    'EXAM31_TICKET_ACTIVITY_LOG_TEXT_N',
+                    [
+                        '#ID#' => $elementId,
+                    ]
+                )
+            );
 		}
 		else
 		{
-			//Если нет данных, отдаем пустые значения
-			$this->preparedProperties['ID'] = 0;
-			$this->preparedProperties['DEMO_VALUE'] = '';
+            $this->preparedProperties['DATE_MODIFY'] = HtmlFilter::encode($element['DATE_MODIFY']);
+            $this->preparedProperties['ACTIVE'] =  HtmlFilter::encode($element['ACTIVE']);
+            $this->preparedProperties['TITLE'] = HtmlFilter::encode($element['TITLE']);
+            $this->preparedProperties['TEXT'] = HtmlFilter::encode($element['TEXT']);
 
-			//Пишем в журнал выполнения БП что данные не нашли
-			$this->log(
-				Loc::getMessage(
-					'EXAM31_TICKET_ACTIVITY_LOG_TEXT_N',
-					[
-						'#ID#' => $elementId,
-					]
-				)
-			);
+            //Значения найдены
+            $this->log(
+                Loc::getMessage(
+                    'EXAM31_TICKET_ACTIVITY_LOG_TEXT_FOUND',
+                    [
+                        '#ID#' => $elementId,
+                    ]
+                )
+            );
 		}
-		/*
-		*
-		*/
-		
+
 		return $errors;
 	}
 
