@@ -435,6 +435,12 @@ class exam31_ticket extends CModule
 			true,
 			true
 		);
+        copyDirFiles(
+            $this->fileRoot . '/local/modules/' . $this->MODULE_ID . '/install/activities/examtickettrainactivity',
+            $this->fileRoot . '/local/activities/examtickettrainactivity',
+            true,
+            true
+        );
 		copyDirFiles(
 			$this->fileRoot . '/local/modules/' . $this->MODULE_ID . '/install/components',
 			$this->fileRoot . '/local/components/' . $this->MODULE_ID,
@@ -458,6 +464,7 @@ class exam31_ticket extends CModule
 	public function UnInstallFiles(): void
 	{
 		Directory::deleteDirectory($this->fileRoot . '/local/activities/examticketactivity');
+		Directory::deleteDirectory($this->fileRoot . '/local/activities/examtickettrainactivity');
 		Directory::deleteDirectory($this->fileRoot . '/local/components/' . $this->MODULE_ID);
 		Directory::deleteDirectory($this->fileRoot . '/exam31');
 		Directory::deleteDirectory($this->fileRoot . '/exam31-train');
