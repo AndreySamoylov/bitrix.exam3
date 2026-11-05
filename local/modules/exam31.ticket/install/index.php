@@ -333,6 +333,14 @@ class exam31_ticket extends CModule
 			'getUserTypeDescription'
 		);
 
+        $eventManager->registerEventHandlerCompatible(
+            'main',
+            'OnUserTypeBuildList',
+            $this->MODULE_ID,
+            'Exam31\\Ticket\\ExamTrainFieldType',
+            'getUserTypeDescription'
+        );
+
         $eventManager->registerEventHandler(
             'main',
             'OnEpilog',
@@ -377,6 +385,14 @@ class exam31_ticket extends CModule
 			'Exam31\\Ticket\\ExamFieldType',
 			'getUserTypeDescription'
 		);
+
+        $eventManager->unRegisterEventHandler(
+            'main',
+            'OnUserTypeBuildList',
+            $this->MODULE_ID,
+            'Exam31\\Ticket\\ExamTrainFieldType',
+            'getUserTypeDescription'
+        );
 
         $eventManager->unRegisterEventHandler(
             'main',
