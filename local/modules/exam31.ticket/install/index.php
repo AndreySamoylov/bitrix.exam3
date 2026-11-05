@@ -279,7 +279,7 @@ class exam31_ticket extends CModule
 			'OnUserTypeBuildList',
 			$this->MODULE_ID,
 			'Exam31\\Ticket\\ExamFieldType',
-			'getDescription'
+			'getUserTypeDescription'
 		);
 
         $eventManager->registerEventHandler(
@@ -316,7 +316,7 @@ class exam31_ticket extends CModule
 			'OnUserTypeBuildList',
 			$this->MODULE_ID,
 			'Exam31\\Ticket\\ExamFieldType',
-			'getDescription'
+			'getUserTypeDescription'
 		);
 
         $eventManager->unRegisterEventHandler(
